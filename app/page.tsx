@@ -11,10 +11,16 @@ import ColorPalette from '@/components/feature/colorPalette';
 import { X } from 'lucide-react';
 import { createHash } from 'crypto';
 import { Toaster, toast } from 'sonner';
+import { ArrowBigDown } from 'lucide-react';
+import { useInView } from 'react-intersection-observer';
 
 export default function Home() {
   const [palette, setPalette] = useState<Color[]>([]);
   const [savedPalettes, setSavedPalettes] = useState<Palette[]>([]);
+  const { ref, inView } = useInView({
+    threshold: 0.6,
+    // triggerOnce: true,
+  });
 
   useEffect(() => {
     const load = async () => {
@@ -71,44 +77,60 @@ export default function Home() {
   };
 
   return (
-    <main className="relative container flex min-h-screen min-w-screen flex-col items-center justify-center caret-transparent">
-      <div className="absolute top-4 right-4 z-10 cursor-pointer">
+    <main className="relative container mx-auto flex min-h-screen flex-col items-center justify-center caret-transparent">
+      <div className="absolute top-4 z-10 cursor-pointer">
         <ThemeToggle />
       </div>
       <Toaster richColors />
 
-      <h1 className="text-primary text-4xl font-bold">A Random Color Palette Generator</h1>
-      <p className="text-muted-foreground mt-4 text-lg">
-        Click the button below to generate a new palette!
-      </p>
+      <div className="flex h-screen flex-col items-center justify-center">
+        <h1 className="text-primary text-4xl font-bold">A Random Color Palette Generator</h1>
+        <p className="text-muted-foreground mt-4 text-lg">
+          Click the button below to generate a new palette!
+        </p>
 
-      <div className="mt-4 flex items-center gap-4">
-        <Button
-          onClick={handleGenerate}
-          variant="outline"
-          className="dark:border-primary/30 cursor-pointer"
-        >
-          Generate
-        </Button>
-        {palette.length > 0 && (
-          <Button onClick={handleSave} variant="secondary" className="cursor-pointer">
-            Save Palette
+        <div className="mt-4 flex items-center gap-4">
+          <Button
+            onClick={handleGenerate}
+            variant="outline"
+            className="bg-primary/80 dark:border-primary/30 cursor-pointer"
+          >
+            Generate
           </Button>
+          {palette.length > 0 && (
+            <Button
+              onClick={handleSave}
+              variant="secondary"
+              className="bg-primary/20 cursor-pointer"
+            >
+              Save Palette
+            </Button>
+          )}
+        </div>
+
+        {/* generated palette */}
+        {palette.length > 0 && (
+          <div className="mt-8 max-w-2xl gap-4">
+            <ColorPalette palette={palette} />
+          </div>
         )}
       </div>
 
-      {/* generated palette */}
-      {palette.length > 0 && (
-        <div className="mt-8 gap-4">
-          <ColorPalette palette={palette} />
+      {/* Scroll indicator - positioned at bottom of viewport */}
+      {savedPalettes.length > 0 && !inView && (
+        <div className="fixed right-0 bottom-8 left-0 flex animate-bounce justify-center">
+          <div className="bg-background/80 flex items-center gap-2 rounded-full border px-4 py-2 backdrop-blur-sm">
+            <ArrowBigDown className="text-muted-foreground size-6" />
+            <p className="text-muted-foreground">Saved palettes below</p>
+          </div>
         </div>
       )}
 
       {/* saved palettes */}
       {savedPalettes.length > 0 && (
-        <div className="container mt-8 flex flex-col gap-4">
+        <div ref={ref} className="container mt-8 flex flex-col gap-4 py-20">
           <h2 className="text-2xl font-bold">Saved Palettes</h2>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
             {savedPalettes.map((palette) => (
               <Card
                 key={palette.id}
