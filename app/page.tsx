@@ -8,10 +8,9 @@ import { savePalette, getPalettes, deletePalette } from '@/app/actions';
 import { Color, Palette } from '@/lib/types';
 import { useEffect } from 'react';
 import ColorPalette from '@/components/feature/colorPalette';
-import { X } from 'lucide-react';
+import { X, ArrowBigDown } from 'lucide-react';
 import { createHash } from 'crypto';
 import { Toaster, toast } from 'sonner';
-import { ArrowBigDown } from 'lucide-react';
 import { useInView } from 'react-intersection-observer';
 
 export default function Home() {
@@ -77,19 +76,23 @@ export default function Home() {
   };
 
   return (
-    <main className="relative container mx-auto flex min-h-screen flex-col items-center justify-center caret-transparent">
+    <main className="relative container mx-auto flex min-h-screen max-w-7xl flex-col items-center justify-center px-4 caret-transparent sm:px-6">
+      {/* Theme toggle button - positioned at the top left corner */}
       <div className="absolute top-4 z-10 cursor-pointer">
         <ThemeToggle />
       </div>
       <Toaster richColors />
 
-      <div className="flex h-screen flex-col items-center justify-center">
-        <h1 className="text-primary text-4xl font-bold">A Random Color Palette Generator</h1>
+      {/* main content */}
+      <div className="flex h-screen flex-col items-center justify-center text-center">
+        <h1 className="dark:text-primary text-3xl font-bold sm:text-4xl md:text-5xl">
+          A Random Color Palette Generator
+        </h1>
         <p className="text-muted-foreground mt-4 text-lg">
           Click the button below to generate a new palette!
         </p>
 
-        <div className="mt-4 flex items-center gap-4">
+        <div className="mt-6 flex items-center gap-4">
           <Button
             onClick={handleGenerate}
             variant="outline"
@@ -110,7 +113,7 @@ export default function Home() {
 
         {/* generated palette */}
         {palette.length > 0 && (
-          <div className="mt-8 max-w-2xl gap-4">
+          <div className="mt-8 w-full max-w-2xl gap-4 px-4">
             <ColorPalette palette={palette} />
           </div>
         )}
@@ -118,7 +121,7 @@ export default function Home() {
 
       {/* Scroll indicator - positioned at bottom of viewport */}
       {savedPalettes.length > 0 && !inView && (
-        <div className="fixed right-0 bottom-8 left-0 flex animate-bounce justify-center">
+        <div className="fixed right-0 bottom-4 left-0 flex animate-bounce justify-center sm:bottom-8">
           <div className="bg-background/80 flex items-center gap-2 rounded-full border px-4 py-2 backdrop-blur-sm">
             <ArrowBigDown className="text-muted-foreground size-6" />
             <p className="text-muted-foreground">Saved palettes below</p>

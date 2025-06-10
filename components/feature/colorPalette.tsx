@@ -20,7 +20,7 @@ export default function ColorPalette({ palette }: { palette: Color[] }) {
         <Card
           onClick={() => copyToClipboard(color.hex)}
           key={index}
-          className="flex aspect-square w-sm cursor-pointer items-center justify-center"
+          className="flex aspect-square w-full min-w-0 cursor-pointer items-center justify-center overflow-hidden"
           style={{ backgroundColor: color.hex }}
         >
           <p className="pt-3 text-center text-lg font-bold">{color.hex}</p>
