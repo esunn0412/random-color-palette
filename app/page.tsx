@@ -4,7 +4,7 @@ import { ThemeToggle } from '@/components/feature/themeToggle';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
 import { Card } from '@/components/ui/card';
-import { savePalette, getPalettes, deletePalette } from '@/app/actions';
+import { savePaletteAction, getPalettes, deletePalette } from '@/app/actions';
 import { Color, Palette } from '@/lib/types';
 import { useEffect } from 'react';
 import ColorPalette from '@/components/feature/colorPalette';
@@ -23,13 +23,22 @@ export default function Home() {
     // triggerOnce: true,
   });
 
+  const [state, formAction, isPending] = useActionState(savePaletteAction, {
+    success: false,
+    message: '',
+  });
+
   useEffect(() => {
-    const load = async () => {
-      const palettes = await getPalettes();
-      setSavedPalettes(palettes);
-    };
-    load();
-  }, []);
+    if (state?.success) {
+      getPalettes().then(setSavedPalettes);
+      toast.success(state.message);
+    } else if (state.message) {
+      toast.error(state?.message || 'An error occurred');
+      state?.errors?.forEach((error) => {
+        toast.error(`${error.path.join('.')}: ${error.message}`);
+      });
+    }
+  }, [state]);
 
   const generateContentHash = (colors: Color[]): string => {
     const hash = createHash('sha256');
@@ -52,29 +61,14 @@ export default function Home() {
     setPalette(generatePalette());
   };
 
-  const handleSave = async () => {
-    if (palette.length === 0) return;
-
-    const newPalette: Palette = {
-      id: generateContentHash(palette),
-      colors: [...palette],
-    };
-
-    const exists = savedPalettes.some((p) => p.id === newPalette.id);
-    if (exists) {
-      toast.error('Palette already saved!');
+  const handleDelete = async (id: string) => {
+    const response = await deletePalette(id);
+    getPalettes().then(setSavedPalettes);
+    toast.success(response.message);
+    if (!response.success) {
+      toast.error(response.message);
       return;
     }
-
-    await savePalette(newPalette);
-    const updatedPalettes = await getPalettes();
-    setSavedPalettes(updatedPalettes);
-  };
-
-  const handleDelete = async (id: string) => {
-    await deletePalette(id);
-    const updatedPalettes = await getPalettes();
-    setSavedPalettes(updatedPalettes);
   };
 
   return (
@@ -103,13 +97,18 @@ export default function Home() {
             Generate
           </Button>
           {palette.length > 0 && (
-            <Button
-              onClick={handleSave}
-              variant="secondary"
-              className="bg-primary/20 cursor-pointer"
-            >
-              Save Palette
-            </Button>
+            <form action={formAction}>
+              <input type="hidden" name="id" value={generateContentHash(palette)} />
+              <input type="hidden" name="colors" value={JSON.stringify(palette)} />
+              <Button
+                type="submit"
+                variant="secondary"
+                disabled={isPending}
+                className="bg-primary/20 cursor-pointer"
+              >
+                {isPending ? 'Saving...' : 'Save Palette'}
+              </Button>
+            </form>
           )}
         </div>
 
