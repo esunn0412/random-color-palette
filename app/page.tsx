@@ -8,10 +8,12 @@ import { savePalette, getPalettes, deletePalette } from '@/app/actions';
 import { Color, Palette } from '@/lib/types';
 import { useEffect } from 'react';
 import ColorPalette from '@/components/feature/colorPalette';
-import { X, ArrowBigDown } from 'lucide-react';
+import { X } from 'lucide-react';
 import { createHash } from 'crypto';
 import { Toaster, toast } from 'sonner';
 import { useInView } from 'react-intersection-observer';
+import { useActionState } from 'react';
+import ScrollIndicator from '@/components/scrollIndicator';
 
 export default function Home() {
   const [palette, setPalette] = useState<Color[]>([]);
@@ -120,14 +122,7 @@ export default function Home() {
       </div>
 
       {/* Scroll indicator - positioned at bottom of viewport */}
-      {savedPalettes.length > 0 && !inView && (
-        <div className="fixed right-0 bottom-4 left-0 flex animate-bounce justify-center sm:bottom-8">
-          <div className="bg-background/80 flex items-center gap-2 rounded-full border px-4 py-2 backdrop-blur-sm">
-            <ArrowBigDown className="text-muted-foreground size-6" />
-            <p className="text-muted-foreground">Saved palettes below</p>
-          </div>
-        </div>
-      )}
+      <ScrollIndicator inView={inView} savedPalettes={savedPalettes.length > 0} />
 
       {/* saved palettes */}
       {savedPalettes.length > 0 && (
