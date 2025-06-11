@@ -63,12 +63,12 @@ export default function Home() {
 
   const handleDelete = async (id: string) => {
     const response = await deletePalette(id);
-    getPalettes().then(setSavedPalettes);
-    toast.success(response.message);
     if (!response.success) {
       toast.error(response.message);
       return;
     }
+    getPalettes().then(setSavedPalettes);
+    toast.success(response.message);
   };
 
   return (
